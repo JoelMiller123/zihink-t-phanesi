@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="text-center mb-4">Profilim</h2>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-success">
+          {{ messages[0] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3 text-center">
+            <img src="{{ url_for('static', filename='profile_pics/' ~ user['profile_pic']) }}" 
+                 alt="Profil Resmi" class="rounded-circle" width="120">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Profil Resmi</label>
+            <input type="file" name="profile_pic" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hakkında</label>
+            <textarea name="bio" class="form-control" rows="3">{{ user['bio'] }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Güncelle</button>
+    </form>
+</div>
+{% endblock %}
