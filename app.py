@@ -46,7 +46,8 @@ def init_library_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
             title TEXT,
-            content TEXT
+            content TEXT,
+            link TEXT
         )
     """)
     db.commit()
@@ -142,7 +143,6 @@ def search():
             ]
     return render_template('search.html', results=results)
 
-# ---------- Ask rotası (SerpAPI ile Google) ----------
 SERPAPI_KEY = "d3b44d1d90069fc87916c42e632795790dbb221bb00bb85e7a398967f494d88b"
 
 @app.route('/ask', methods=['GET', 'POST'])
@@ -183,12 +183,11 @@ def ask():
                 })
     return render_template('ask.html', answers=answers)
 
-# ---------- Kütüphane ----------
 @app.route('/save', methods=['POST'])
 def save():
     title = request.form['title']
     content = request.form['content']
-    link = request.form.get('link', '#')  # Link yoksa '#' kullan
+    link = request.form.get('link', '#')
     db = get_db()
     cur = db.cursor()
     cur.execute("SELECT id FROM users WHERE username = ?", (session['user'],))
@@ -200,7 +199,6 @@ def save():
         db.commit()
     return redirect('/library')
 
-
 @app.route('/library')
 def library():
     db = get_db()
@@ -210,7 +208,7 @@ def library():
     entries = []
     if user_row:
         user_id = user_row['id']
-        cur.execute("SELECT id, title, content FROM library WHERE user_id=? ORDER BY title ASC", (user_id,))
+        cur.execute("SELECT id, title, content, link FROM library WHERE user_id=? ORDER BY title ASC", (user_id,))
         entries = cur.fetchall()
     return render_template('library.html', entries=entries)
 
@@ -226,7 +224,6 @@ def delete(entry_id):
         db.commit()
     return redirect('/library')
 
-# ---------- Debug ----------
 @app.route('/_debug_users')
 def debug_users():
     db = get_db()
@@ -236,4 +233,5 @@ def debug_users():
 
 # ---------- Ana program ----------
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
